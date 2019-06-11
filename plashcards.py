@@ -32,14 +32,16 @@ def makeDeck(fname):
 
 def test(fname):
     deckSave = json.loads(open(fname, "r").read())
-    front = deckSave["front"]
-    back = deckSave["back"]
+    frontField = deckSave["front"]
+    backField = deckSave["back"]
     deck = deckSave["deck"]
     random.shuffle(deck)
     for card in deck:
-        print("front:", card["front"])
+        for field in frontField:
+            print(field + ":", card[field])
         input()
-        print("back: ", card["back"])
+        for field in backField:
+            print(field + ":", card[field])
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Naval Fate 2.0')
