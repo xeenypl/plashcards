@@ -23,10 +23,18 @@ def makeDeck(fname):
             "back"  : sline[1]
         })
     f, ext = os.path.splitext(fname)
+    save = {
+        "front" : ["front"]
+        "back" : ["back"]
+        "deck" : deck
+    }
     open(f + ".pdeck", "w").write(json.dumps(deck, sort_keys=True, indent=4))
 
 def test(fname):
-    deck = json.loads(open(fname, "r").read())
+    deckSave = json.loads(open(fname, "r").read())
+    front = deckSave["front"]
+    back = deckSave["back"]
+    deck = deckSave["deck"]
     random.shuffle(deck)
     for card in deck:
         print("front:", card["front"])
