@@ -24,11 +24,11 @@ def makeDeck(fname):
         })
     f, ext = os.path.splitext(fname)
     save = {
-        "front" : ["front"]
-        "back" : ["back"]
+        "front" : ["front"],
+        "back" : ["back"],
         "deck" : deck
     }
-    open(f + ".pdeck", "w").write(json.dumps(deck, sort_keys=True, indent=4))
+    open(f + ".pdeck", "w").write(json.dumps(save, sort_keys=True, indent=4))
 
 def test(fname):
     deckSave = json.loads(open(fname, "r").read())
@@ -45,7 +45,6 @@ def test(fname):
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Naval Fate 2.0')
-    print(arguments)
     if arguments["new"]:
         makeDeck(arguments["<file>"])
     if arguments["test"]:
