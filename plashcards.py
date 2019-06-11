@@ -10,8 +10,11 @@ Options:
 """
 import json
 import os
+import os.path
 import random
 from docopt import docopt
+
+configFile = expanduser("~/.config/plashcards/config.json")
 
 def makeDeck(fname):
     deck = []
@@ -19,8 +22,9 @@ def makeDeck(fname):
     for line in lines[:-1]:
         sline = line.split("\t")
         deck.append({
-            "front" : sline[0],
-            "back"  : sline[1]
+            "front"    : sline[0],
+            "back"     : sline[1],
+            "waitTime" : 0
         })
     f, ext = os.path.splitext(fname)
     save = {
@@ -45,6 +49,11 @@ def test(fname):
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Naval Fate 2.0')
+    try:
+        config = open(configFile, "r").read()
+        arguments = config.update(arguments)
+    except:
+        pass
     if arguments["new"]:
         makeDeck(arguments["<file>"])
     if arguments["test"]:
