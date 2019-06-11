@@ -11,10 +11,11 @@ Options:
 import json
 import os
 import os.path
+import readchar
 import random
 from docopt import docopt
 
-configFile = expanduser("~/.config/plashcards/config.json")
+configFile = os.path.expanduser("~/.config/plashcards/config.json")
 
 def makeDeck(fname):
     deck = []
@@ -43,7 +44,7 @@ def test(fname):
     for card in deck:
         for field in frontField:
             print(field + ":", card[field])
-        input()
+        c = readchar.readchar()
         for field in backField:
             print(field + ":", card[field])
 
