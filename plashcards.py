@@ -9,13 +9,25 @@ Options:
 
 """
 import json
+import sys
 import os
 import os.path
 import readchar
 import random
+from datetime import datetime
 from docopt import docopt
 
 configFile = os.path.expanduser("~/.config/plashcards/config.json")
+defaultConfig = {
+    "nknow-time": 60,
+    "hard-time" : 600,
+    "easy-time" : 86400,
+    "nknow-key": "a",
+    "hard-key" : "s",
+    "easy-key" : "d",
+    "quit-key" : "q"
+    }
+
 
 def makeDeck(fname):
     deck = []
@@ -41,20 +53,33 @@ def test(fname):
     backField = deckSave["back"]
     deck = deckSave["deck"]
     random.shuffle(deck)
-    for card in deck:
-        for field in frontField:
-            print(field + ":", card[field])
-        c = readchar.readchar()
-        for field in backField:
-            print(field + ":", card[field])
+    for i in range(len(deck)):
+        card = deck[i]
+        now = int(datetime.timestamp(datetime.now()))
+        if now > card["waitTime"]:
+            for field in frontField:
+                print(field + ":", card[field])
+            c = readchar.readchar()
+            if c == config["hard-key"]:
+                deck[i]["waitTime"] = now + config["hard-time"]
+            elif c == config["easy-key"]:
+                deck[i]["waitTime"] = now + config["easy-time"]
+            elif c == config["quit-key"]:
+                deckSave.update({"deck" : deck})
+                open(fname, "w").write(json.dumps(
+                    deckSave, indent=2, separators=(',', ': ')))
+                sys.exit()
+            else:
+                deck[i]["waitTime"] = now + config["nknow-time"]
+            print(deck[i]["waitTime"], now)
+            for field in backField:
+                print(field + ":", card[field])
+    deckSave.update({"deck" : deck})
+    open(fname, "w").write(json.dumps(deckSave, indent=2, separators=(',', ': ')))
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Naval Fate 2.0')
-    try:
-        config = open(configFile, "r").read()
-        arguments = config.update(arguments)
-    except:
-        pass
+    config = defaultConfig
     if arguments["new"]:
         makeDeck(arguments["<file>"])
     if arguments["test"]:
