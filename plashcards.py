@@ -3,6 +3,7 @@
 Usage:
   plashcards.py new <file>
   plashcards.py test <deck>
+  plashcards.py add <deck> [<name>]
 
 Options:
   -h --help     Show this screen.
@@ -19,6 +20,7 @@ from docopt import docopt
 
 configFile = os.path.expanduser("~/.config/plashcards/config.json")
 defaultConfig = {
+    "save-file"	: "~/.plashcards",
     "nknow-time": 60,
     "hard-time" : 600,
     "easy-time" : 86400,
@@ -77,10 +79,39 @@ def test(fname):
     deckSave.update({"deck" : deck})
     open(fname, "w").write(json.dumps(deckSave, indent=2, separators=(',', ': ')))
 
+def addToSave(name, fname):
+    saveFile = os.path.expanduser(config["save-file"])
+    try:
+        save = json.loads(open(saveFile, "r").read())
+    except:
+        save = {}
+    deckSave = json.loads(open(fname, "r").read())
+    if name is not None:
+        try:
+            decks = save["decks"]
+        except:
+            decks = {}
+        decks.update({name: deckSave})
+        save.update({"decks": decks})
+    else:
+        f, ext = os.path.splitext(fname)
+        try:
+            decks = save["decks"]
+        except:
+            decks = {}
+        decks.update({f: deckSave})
+        save.update({"decks": decks})
+    open(saveFile , "w").write(
+        json.dumps(save, indent=2, separators=(',', ': ')))
+
+
+
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Naval Fate 2.0')
     config = defaultConfig
     if arguments["new"]:
         makeDeck(arguments["<file>"])
-    if arguments["test"]:
+    elif arguments["test"]:
         test(arguments["<deck>"])
+    elif arguments["add"]:
+        addToSave(arguments["<name>"], arguments["<deck>"])
