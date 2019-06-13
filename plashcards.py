@@ -1,7 +1,9 @@
+#!/usr/bin/python3
 """plashcards.
 
 Usage:
-  plashcards.py new <file>
+  plashcards.py make <file>
+  plashcards.py dump <file>
   plashcards.py test <deck>
   plashcards.py add <deck> [<name>]
 
@@ -21,17 +23,12 @@ from docopt import docopt
 configFile = os.path.expanduser("~/.config/plashcards/config.json")
 defaultConfig = {
     "save-file"	: "~/.plashcards",
-    "nknow-time": 60,
-    "hard-time" : 600,
+    "wrong-time": 60,
+    "good-time" : 600,
     "easy-time" : 86400,
-    "nknow-key": "a",
-    "hard-key" : "s",
-    "easy-key" : "d",
-    "quit-key" : "q"
     }
 
-
-def makeDeck(fname):
+def makeDeck(fname, separator):
     deck = []
     lines = open(fname, "r").read().split("\n")
     for line in lines[:-1]:
@@ -41,16 +38,28 @@ def makeDeck(fname):
             "back"     : sline[1],
             "waitTime" : 0
         })
-    f, ext = os.path.splitext(fname)
     save = {
         "front" : ["front"],
         "back" : ["back"],
         "deck" : deck
     }
+    return save
+
+def dumpDeck(fname, separator=":"):
+    save = makeDeck(fname, separator)
+    f, ext = os.path.splitext(fname)
     open(f + ".pdeck", "w").write(json.dumps(save, sort_keys=True, indent=4))
 
-def test(fname):
-    deckSave = json.loads(open(fname, "r").read())
+
+def test(name):
+    saveFile = os.path.expanduser(config["save-file"])
+    decksSave = json.loads(open(saveFile, "r").read())
+    deckSave = {}
+    try:
+        deckSave = decksSave[name]
+    except:
+        print("deck %s don't exist" % name)
+        sys.exit()
     frontField = deckSave["front"]
     backField = deckSave["back"]
     deck = deckSave["deck"]
@@ -62,24 +71,28 @@ def test(fname):
             for field in frontField:
                 print(field + ":", card[field])
             c = readchar.readchar()
-            if c == config["hard-key"]:
-                deck[i]["waitTime"] = now + config["hard-time"]
-            elif c == config["easy-key"]:
-                deck[i]["waitTime"] = now + config["easy-time"]
-            elif c == config["quit-key"]:
-                deckSave.update({"deck" : deck})
-                open(fname, "w").write(json.dumps(
-                    deckSave, indent=2, separators=(',', ': ')))
-                sys.exit()
-            else:
-                deck[i]["waitTime"] = now + config["nknow-time"]
-            print(deck[i]["waitTime"], now)
             for field in backField:
                 print(field + ":", card[field])
+            print("a : wrong | s : good | d : easy | q : quit")
+            c = readchar.readchar()
+            if c == "s":
+                deck[i]["waitTime"] = now + config["good-time"]
+            elif c == "d":
+                deck[i]["waitTime"] = now + config["easy-time"]
+            elif c == "q":
+                deckSave.update({"deck" : deck})
+                decksSave.update({name: deckSave})
+                open(saveFile, "w").write(json.dumps(
+                    decksSave, indent=2, separators=(',', ': ')))
+                sys.exit()
+            else:
+                deck[i]["waitTime"] = now + config["wrong-time"]
     deckSave.update({"deck" : deck})
-    open(fname, "w").write(json.dumps(deckSave, indent=2, separators=(',', ': ')))
+    decksSave.update({name: deckSave})
+    open(saveFile, "w").write(json.dumps(decksSave,
+        indent=2, separators=(',', ': ')))
 
-def addToSave(name, fname):
+def add(name, fname):
     saveFile = os.path.expanduser(config["save-file"])
     try:
         save = json.loads(open(saveFile, "r").read())
@@ -92,7 +105,7 @@ def addToSave(name, fname):
         except:
             decks = {}
         decks.update({name: deckSave})
-        save.update({"decks": decks})
+        save.update(decks)
     else:
         f, ext = os.path.splitext(fname)
         try:
@@ -100,18 +113,43 @@ def addToSave(name, fname):
         except:
             decks = {}
         decks.update({f: deckSave})
-        save.update({"decks": decks})
+        save.update(decks)
     open(saveFile , "w").write(
         json.dumps(save, indent=2, separators=(',', ': ')))
 
-
+def make(name, fname, separator=":"):
+    saveFile = os.path.expanduser(config["save-file"])
+    try:
+        save = json.loads(open(saveFile, "r").read())
+    except:
+        save = {}
+    deckSave = makeDeck(fname, separator=":")
+    if name is not None:
+        try:
+            decks = save["decks"]
+        except:
+            decks = {}
+        decks.update({name: deckSave})
+        save.update(decks)
+    else:
+        f, ext = os.path.splitext(fname)
+        try:
+            decks = save["decks"]
+        except:
+            decks = {}
+        decks.update({f: deckSave})
+        save.update(decks)
+    open(saveFile , "w").write(
+        json.dumps(save, indent=2, separators=(',', ': ')))
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Naval Fate 2.0')
     config = defaultConfig
-    if arguments["new"]:
-        makeDeck(arguments["<file>"])
+    if arguments["dump"]:
+        dumpDeck(arguments["<file>"])
+    elif arguments["make"]:
+        make(arguments["<name>"], arguments["<file>"])
     elif arguments["test"]:
         test(arguments["<deck>"])
     elif arguments["add"]:
-        addToSave(arguments["<name>"], arguments["<deck>"])
+        add(arguments["<name>"], arguments["<deck>"])
