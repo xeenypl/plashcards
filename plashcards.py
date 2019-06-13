@@ -30,7 +30,7 @@ defaultConfig = {
     "easy-time" : 86400,
     }
 
-def makeDeck(fname, separator):
+def makeDeck(fname):
     deck = []
     lines = open(fname, "r").read().split("\n")
     for line in lines[:-1]:
@@ -47,7 +47,7 @@ def makeDeck(fname, separator):
     }
     return save
 
-def dumpDeck(fname, separator=":"):
+def dumpDeck(fname):
     save = makeDeck(fname, separator)
     f, ext = os.path.splitext(fname)
     open(f + ".pdeck", "w").write(json.dumps(save, sort_keys=True, indent=4))
@@ -144,7 +144,7 @@ def add(name, fname):
     open(saveFile , "w").write(
         json.dumps(save, indent=2, separators=(',', ': ')))
 
-def make(name, fname, separator=":"):
+def make(name, fname):
     saveFile = os.path.expanduser(config["save-file"])
     try:
         save = json.loads(open(saveFile, "r").read())
