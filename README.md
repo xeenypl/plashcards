@@ -5,7 +5,7 @@ is a simple flashcards wirten in python
 features:
 =========
 * system(wrong, hard, easy)
-* soring global all decks
+* storneing global all decks
 * generate deks
 * remeber time when repate card
 
@@ -32,5 +32,5 @@ automatic makes decks of foramt:
 ```
 word A \t word B
 ```
-Just make file *.txt and run `plashcards.py make` to add new deck
+Just make file for example flashcard.txt and run `plashcards.py make flashcards.txt` to add new deck
 
