@@ -2,6 +2,7 @@
 """plashcards.
 
 Usage:
+  plashcards.py list
   plashcards.py make <file>
   plashcards.py dump <file>
   plashcards.py test <deck>
@@ -50,6 +51,15 @@ def dumpDeck(fname, separator=":"):
     f, ext = os.path.splitext(fname)
     open(f + ".pdeck", "w").write(json.dumps(save, sort_keys=True, indent=4))
 
+def listDecks():
+    saveFile = os.path.expanduser(config["save-file"])
+    try:
+        decksSave = json.loads(open(saveFile, "r").read())
+        for deck in decksSave:
+            print(" %s : %s cards" % (deck, len(decksSave[deck]["deck"])))
+    except:
+        print("Yuo don't haveany deck")
+        sys.exit()
 
 def test(name):
     saveFile = os.path.expanduser(config["save-file"])
@@ -153,6 +163,8 @@ if __name__ == '__main__':
         dumpDeck(arguments["<file>"])
     elif arguments["make"]:
         make(arguments["<name>"], arguments["<file>"])
+    elif arguments["list"]:
+        listDecks()
     elif arguments["test"]:
         test(arguments["<deck>"])
     elif arguments["add"]:
