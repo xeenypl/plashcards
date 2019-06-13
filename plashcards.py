@@ -53,8 +53,11 @@ def dumpDeck(fname, separator=":"):
 
 def test(name):
     saveFile = os.path.expanduser(config["save-file"])
-    decksSave = json.loads(open(saveFile, "r").read())
-    deckSave = {}
+    try:
+        decksSave = json.loads(open(saveFile, "r").read())
+    except:
+        print("Yuo don't haveany deck")
+        sys.exit()
     try:
         deckSave = decksSave[name]
     except:
@@ -87,6 +90,7 @@ def test(name):
                 sys.exit()
             else:
                 deck[i]["waitTime"] = now + config["wrong-time"]
+    print("tim for break")
     deckSave.update({"deck" : deck})
     decksSave.update({name: deckSave})
     open(saveFile, "w").write(json.dumps(decksSave,
