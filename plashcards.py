@@ -3,6 +3,7 @@
 
 Usage:
   plashcards.py list
+  plashcards.py remove <deck>
   plashcards.py make <file>
   plashcards.py dump <file>
   plashcards.py test <deck>
@@ -58,15 +59,27 @@ def listDecks():
         for deck in decksSave:
             print(" %s : %s cards" % (deck, len(decksSave[deck]["deck"])))
     except:
-        print("Yuo don't haveany deck")
+        print("Yuo don't have any deck")
         sys.exit()
+
+def remove(name):
+    saveFile = os.path.expanduser(config["save-file"])
+    try:
+        decksSave = json.loads(open(saveFile, "r").read())
+    except:
+        print("Yuo don't have any deck")
+        sys.exit()
+    del decksSave[name]
+    open(saveFile, "w").write(json.dumps(decksSave,
+        indent=2, separators=(',', ': ')))
+
 
 def test(name):
     saveFile = os.path.expanduser(config["save-file"])
     try:
         decksSave = json.loads(open(saveFile, "r").read())
     except:
-        print("Yuo don't haveany deck")
+        print("Yuo don't have any deck")
         sys.exit()
     try:
         deckSave = decksSave[name]
@@ -165,6 +178,8 @@ if __name__ == '__main__':
         make(arguments["<name>"], arguments["<file>"])
     elif arguments["list"]:
         listDecks()
+    elif arguments["remove"]:
+        remove(arguments["<deck>"])
     elif arguments["test"]:
         test(arguments["<deck>"])
     elif arguments["add"]:
