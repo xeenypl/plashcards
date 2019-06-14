@@ -48,7 +48,7 @@ def makeDeck(fname):
     return save
 
 def dumpDeck(fname):
-    save = makeDeck(fname, separator)
+    save = makeDeck(fname)
     f, ext = os.path.splitext(fname)
     open(f + ".pdeck", "w").write(json.dumps(save, sort_keys=True, indent=4))
 
@@ -150,7 +150,7 @@ def make(name, fname):
         save = json.loads(open(saveFile, "r").read())
     except:
         save = {}
-    deckSave = makeDeck(fname, separator=":")
+    deckSave = makeDeck(fname)
     if name is not None:
         try:
             decks = save["decks"]
